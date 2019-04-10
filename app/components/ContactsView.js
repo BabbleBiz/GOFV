@@ -32,7 +32,7 @@ class ContactsView extends Component {
     }
   };
   render() {
-    const { text, deleteItem, id, isCompleted } = this.props;
+    const { deleteItem, recordID, familyName, givenName, isCompleted, messageSent } = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.column}>
@@ -57,7 +57,8 @@ class ContactsView extends Component {
                 : { color: itemListText }
             ]}
           >
-            {text}
+            {`${givenName} ${familyName}`}
+            {messageSent === '' ? '' : `  Sent Message`}
           </Text>
         </View>
         {isCompleted ? (

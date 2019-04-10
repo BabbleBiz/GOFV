@@ -58,45 +58,65 @@ export default class Main extends React.Component {
     //Checking if contacts already loaded into AsyncStorage
     try {
       workingContactList = await AsyncStorage.getItem('contactList')
-      if (workingContactList !== null){
+      //HEY YOU! Figure out what is being returned from this Async
+      if (workingContactList == { "_40": 0, "_65": 0, "_55": null, "_72": null }){
         workingContactList = JSON.parse(workingContactList)
       } else {
-        workingContactList = (async function () {
-          if (currentPlatform === 'ios') {
-            await Contacts.getAll((err, contacts) => {
-              if (err) {
-                throw err;
-                //We need to print on the screen you need to give this app persomission to view your contacts Settings > GOFV > contacts
-              } else { return contacts }
-            })
-          } else {
-            PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-              {
-                'title': 'Contacts',
-                'message': 'This app would like to view your contacts.'
-              }
-            ).then(async () => {
-              await Contacts.getAll((err, contacts) => {
-                if (err === 'denied') {
-                  console.log('You denied access to your contacts')
-                } else if (err) {
-                  console.log(err)
-                } else {
-                  return contacts
-                }
-              })
-            })
-          }
-        })()
-        console.log("#########", workingContactList)
+        workingContactList = [{
+          recordID: 1,
+          familyName: "Jung",
+          givenName: "Carl",
+          middleName: "",
+          emailAddresses: [{
+            label: "work",
+            email: "carl-jung@example.com",
+          }],
+          phoneNumbers: [{
+            label: "mobile",
+            number: "(555) 555-5555",
+          }],
+          thumbnailPath: "",
+          messageSent: ''
+        }]
+
+        AsyncStorage.setItem('contactList', JSON.stringify(workingContactList))
+        //This SHOULD allow us to access contact list
+        // workingContactList = (async function () {
+        //   if (currentPlatform === 'ios') {
+        //     await Contacts.getAll((err, contacts) => {
+        //       if (err) {
+        //         throw err;
+        //         //We need to print on the screen you need to give this app persomission to view your contacts Settings > GOFV > contacts
+        //       } else { return contacts }
+        //     })
+        //   } else {
+        //     PermissionsAndroid.request(
+        //       PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+        //       {
+        //         'title': 'Contacts',
+        //         'message': 'This app would like to view your contacts.'
+        //       }
+        //     ).then(async () => {
+        //       await Contacts.getAll((err, contacts) => {
+        //         if (err === 'denied') {
+        //           console.log('You denied access to your contacts')
+        //         } else if (err) {
+        //           console.log(err)
+        //         } else {
+        //           return contacts
+        //         }
+        //       })
+        //     })
+        //   }
+        // })()
+        // console.log("#########", workingContactList)
         // workingContactList.forEach(contact => {
         //   // if (!contact.messageSent) {
         //   //   contact.messageSent = ''
         //   // }
         //   return contact
         // })
-        AsyncStorage.setItem('contactList', JSON.stringify(workingContactList))
+        // AsyncStorage.setItem('contactList', JSON.stringify(workingContactList))
       }
     } catch (err) {
       console.error(err)
@@ -106,6 +126,7 @@ export default class Main extends React.Component {
       loadingItems: true,
       contactList: workingContactList || {}
     })
+
   }
 
   //Adding the sent message to your contact list
@@ -137,8 +158,8 @@ export default class Main extends React.Component {
   }
 
   //You need to make an async storage for this app!
-  saveContacts = newItem => {
-    const saveItem = AsyncStorage.setItem('Contact List', JSON.stringify(newItem))
+  saveContacts = updatedContact => {
+    const saveContact = AsyncStorage.setItem('Contact List', JSON.stringify(updatedContact))
   }
 
   newTextMessage = value => {
@@ -164,13 +185,13 @@ export default class Main extends React.Component {
           <View style={styles.column}>
             <SubTitle subtitle={'Who is next?'} />
           </View>
-          {/* {loadingItems ? (
+          {loadingItems ? (
             <ScrollView contentContainerStyle={styles.scrollableList}>
               {Object.values(contactList)
                 .reverse()
                 .map(item => (
                   <ContactsView
-                    key={item.id}
+                    key={item.recordID}
                     {...item}
                   // deleteItem={this.deleteItem}
                   // completeItem={this.completeItem}
@@ -180,7 +201,7 @@ export default class Main extends React.Component {
             </ScrollView>
           ) : (
               <ActivityIndicator size="large" color="white" />
-            )} */}
+            )}
         </View>
       </LinearGradient>
     );
