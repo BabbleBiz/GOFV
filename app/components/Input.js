@@ -2,13 +2,11 @@ import React from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 import { inputPlaceholder } from '../utils/Colors';
 
-const Input = ({ textMessage, onChangeText, onDoneAddItem }) => (
+const Input = ({ textMessage, onChangeText, onDoneSendMessage }) => (
   <TextInput
     style={styles.input}
     value={textMessage}
     onChangeText={onChangeText}
-    placeholder="Type here to customize your text."
-    placeholderTextColor={inputPlaceholder}
     multiline={true}
     autoCapitalize="sentences"
     underlineColorAndroid="transparent"
@@ -17,7 +15,7 @@ const Input = ({ textMessage, onChangeText, onDoneAddItem }) => (
     returnKeyType="done"
     autoCorrect={false}
     blurOnSubmit={true}
-    onSubmitEditing={onDoneAddItem}
+    onSubmitEditing={onDoneSendMessage}
   />
 );
 const styles = StyleSheet.create({

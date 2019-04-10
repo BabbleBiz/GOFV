@@ -22,7 +22,7 @@ const { height, width } = Dimensions.get('window');
 //complete/not complete is probably fine
 //Do we need delete? Probs not
 //Need text to show up at the top, probs don't need to import text
-class Contacts extends Component {
+class ContactsView extends Component {
   onToggleCircle = () => {
     const { isCompleted, id, completeItem, incompleteItem } = this.props;
     if (isCompleted) {
@@ -121,4 +121,4 @@ const styles = StyleSheet.create({
     marginRight: 10
   }
 });
-export default Contacts;
+export default ContactsView;

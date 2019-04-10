@@ -1,18 +1,21 @@
 import React from 'react';
 import {
   View,
-  Text,
-  Dimensions,
   StyleSheet,
-  TouchableOpacity,
+  ActivityIndicator,
   Platform,
   PermissionsAndroid,
-  AsyncStorage } from 'react-native';
+  AsyncStorage,
+  StatusBar,
+  ScrollView
+ } from 'react-native';
 import { LinearGradient } from 'expo';
 import { primaryGradientArray } from './utils/Colors';
 import Header from './components/Header';
 import Input from './components/Input';
+import SubTitle from './components/SubTitle';
 import Contacts from 'react-native-contacts';
+import ContactsView from './components/ContactsView'
 
 
 
@@ -38,7 +41,7 @@ const currentPlatform = Platform.OS //either ios or android
 // }
 //We are adding a message sent key
 
-let contactList
+let workingContactList
 
 export default class Main extends React.Component {
   state = {
@@ -54,11 +57,11 @@ export default class Main extends React.Component {
   loadingItems =  async () => {
     //Checking if contacts already loaded into AsyncStorage
     try {
-      contactList = await AsyncStorage.getItem('contactList')
-      if (contactList != null){
-        contactList = JSON.parse(contactList)
+      workingContactList = await AsyncStorage.getItem('contactList')
+      if (workingContactList !== null){
+        workingContactList = JSON.parse(workingContactList)
       } else {
-        contactList = async function () {
+        workingContactList = (async function () {
           if (currentPlatform === 'ios') {
             await Contacts.getAll((err, contacts) => {
               if (err) {
@@ -85,22 +88,23 @@ export default class Main extends React.Component {
               })
             })
           }
-        }
-        contactList.forEach(contact => {
-          if (!contact.messageSent) {
-            contact.messageSent = ''
-          }
-          return contact
-        })
-        AsyncStorage.setItem('contactList', JSON.stringify(contactList))
+        })()
+        console.log("#########", workingContactList)
+        // workingContactList.forEach(contact => {
+        //   // if (!contact.messageSent) {
+        //   //   contact.messageSent = ''
+        //   // }
+        //   return contact
+        // })
+        AsyncStorage.setItem('contactList', JSON.stringify(workingContactList))
       }
     } catch (err) {
       console.error(err)
     }
 
-    this.setState ({
+    this.setState({
       loadingItems: true,
-      contactList: contactList || {}
+      contactList: workingContactList || {}
     })
   }
 
@@ -108,6 +112,8 @@ export default class Main extends React.Component {
   //input is the id of the contact
   onDoneSendMessage = (id) => {
     const { textMessage } = this.state;
+    //Need to add code here to send message
+
     if (textMessage !== ''){
       this.setState(prevState => {
         const contactWithMessage = {
@@ -131,12 +137,12 @@ export default class Main extends React.Component {
   }
 
   //You need to make an async storage for this app!
-  saveItems = newItem => {
+  saveContacts = newItem => {
     const saveItem = AsyncStorage.setItem('Contact List', JSON.stringify(newItem))
   }
 
   newTextMessage = value => {
-    this.setState ({
+    this.setState({
       textMessage: value
     });
   };
@@ -146,20 +152,24 @@ export default class Main extends React.Component {
 
     return (
       <LinearGradient colors={primaryGradientArray} style={styles.container}>
-        <StatusBar barStyle="light-content" />;
+        <StatusBar barStyle="light-content" />
         <View style={styles.centered}>
           <Header title={headerTitle} />
-        </View>;
+        </View>
         <View style={styles.inputContainer}>
+          <SubTitle subtitle={"Get them out to vote!"} />
           <Input textMessage={textMessage} onChangeText={this.newTextMessage} onDoneSendMessage={this.onDoneSendMessage} />
         </View>
         <View style={styles.list}>
-          {loadingItems ? (
+          <View style={styles.column}>
+            <SubTitle subtitle={'Who is next?'} />
+          </View>
+          {/* {loadingItems ? (
             <ScrollView contentContainerStyle={styles.scrollableList}>
               {Object.values(contactList)
                 .reverse()
                 .map(item => (
-                  <List
+                  <ContactsView
                     key={item.id}
                     {...item}
                   // deleteItem={this.deleteItem}
@@ -170,7 +180,7 @@ export default class Main extends React.Component {
             </ScrollView>
           ) : (
               <ActivityIndicator size="large" color="white" />
-            )}
+            )} */}
         </View>
       </LinearGradient>
     );
